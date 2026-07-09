@@ -392,7 +392,7 @@ function LandingPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
       {/* footer */}
       <footer className="border-t border-border py-6 px-6 text-center">
         <p className="text-xs text-muted-foreground">
-          © 2026 CineCatálogo · Desenvolvido por{""}
+          © 2026 CineCatálogo · Desenvolvido por{" "}
           <span className="text-foreground font-medium">Samuel Oliveira, Gabriel Topázio, Fernanda Roubuste  Rafael Leal </span>
         </p>
       </footer>
