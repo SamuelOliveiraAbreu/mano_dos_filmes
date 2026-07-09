@@ -393,7 +393,7 @@ function LandingPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
       <footer className="border-t border-border py-6 px-6 text-center">
         <p className="text-xs text-muted-foreground">
           © 2026 CineCatálogo · Desenvolvido por{" samuel, topazio, rafel e fernanda "}
-          <span className="text-foreground font-medium">chupa pau</span>
+          <span className="text-foreground font-medium">Samuel Oliveira, Gabriel Topázio, Fernanda Roubuste  Rafael Leal </span>
         </p>
       </footer>
     </div>
