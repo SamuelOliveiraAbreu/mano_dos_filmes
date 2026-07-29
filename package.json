@@ -86,5 +86,18 @@
     "overrides": {
       "vite": "6.3.5"
     }
-  }
+  },
+  "description": "This is a code bundle for Catalogo de Filmes e Series. The original project is available at https://www.figma.com/design/YEBNzLHFGM7YLqxeBlH3Lk/Catalogo-de-Filmes-e-Series.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SamuelOliveiraAbreu/mano_dos_filmes.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SamuelOliveiraAbreu/mano_dos_filmes/issues"
+  },
+  "homepage": "https://github.com/SamuelOliveiraAbreu/mano_dos_filmes#readme"
 }

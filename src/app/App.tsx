@@ -1118,17 +1118,38 @@ function AdminPage({
     setShowForm(true);
   }
 
-  function handleSave(e: React.FormEvent) {
+  async function handleSave(e: any) {
     e.preventDefault();
     if (!form.title.trim() || !form.description.trim()) return;
     const castArray = castInput.split(",").map((s) => s.trim()).filter(Boolean);
-    const itemData = { ...form, cast: castArray };
+     const itemData = { ...form, cast: castArray };
 
     if (editId) {
       onEdit({ ...itemData, id: editId });
     } else {
       onAdd({ ...itemData, id: genId() });
     }
+
+    await fetch("https://mano-dos-filmes-api.onrender.com/api/filmes", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    titulo: itemData.title,
+    genero: itemData.genre,
+    id: editId || genId(),
+    ano: itemData.year,
+    descricao: itemData.description,
+    diretor: itemData.director,
+    elenco: itemData.cast.join(", "),
+    duracao: itemData.duration,
+    corA: itemData.colorA,
+    corB: itemData.colorB,
+  }),
+});
+
+
     setForm(blank);
     setCastInput("");
     setEditId(null);
