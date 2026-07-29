@@ -1457,9 +1457,7 @@ export default function App() {
   const [users, setUsers] = useState<UserAccount[]>(
     () => loadLS<UserAccount[]>("cc_users", [])
   );
-  const [media, setMedia] = useState<MediaItem[]>(
-    () => loadLS<MediaItem[]>("cc_media", SEED_MEDIA)
-  );
+const [media, setMedia] = useState<MediaItem[]>([]);
   const [reviews, setReviews] = useState<Review[]>(
     () => loadLS<Review[]>("cc_reviews", SEED_REVIEWS)
   );
@@ -1469,10 +1467,37 @@ export default function App() {
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
   const [prevPage, setPrevPage] = useState<Page>("home");
 
+    useEffect(() => {
+
+    async function carregarFilmes() {
+
+      try {
+
+        const resposta = await fetch(
+
+          "https://mano-dos-filmes-api.onrender.com/api/filmes"
+
+        );
+
+        const filmes = await resposta.json();
+
+        setMedia(filmes);
+
+      } catch (erro) {
+
+        console.error("Erro ao carregar filmes:", erro);
+
+      }
+
+    }
+
+    carregarFilmes();
+
+  }, []);
+
   // Sync to localStorage
   useEffect(() => { saveLS("cc_user", currentUser); }, [currentUser]);
   useEffect(() => { saveLS("cc_users", users); }, [users]);
-  useEffect(() => { saveLS("cc_media", media); }, [media]);
   useEffect(() => { saveLS("cc_reviews", reviews); }, [reviews]);
   useEffect(() => { saveLS("cc_favs", Array.from(favorites)); }, [favorites]);
 
