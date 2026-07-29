@@ -1450,6 +1450,9 @@ function AdminPage({
 
 // ─── Root App ──────────────────────────────────────────────────────────────────
 export default function App() {
+
+  localStorage.clear();
+
   const [page, setPage] = useState<Page>("landing");
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(
     () => loadLS<UserAccount | null>("cc_user", null)
