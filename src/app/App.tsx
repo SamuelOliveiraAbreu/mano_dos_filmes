@@ -1130,26 +1130,6 @@ function AdminPage({
       onAdd({ ...itemData, id: genId() });
     }
 
-    await fetch("https://mano-dos-filmes-api.onrender.com/api/filmes", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    titulo: itemData.title,
-    genero: itemData.genre,
-    id: editId || genId(),
-    ano: itemData.year,
-    descricao: itemData.description,
-    diretor: itemData.director,
-    elenco: itemData.cast.join(", "),
-    duracao: itemData.duration,
-    corA: itemData.colorA,
-    corB: itemData.colorB,
-  }),
-});
-
-
     setForm(blank);
     setCastInput("");
     setEditId(null);
@@ -1458,7 +1438,8 @@ export default function App() {
   const [users, setUsers] = useState<UserAccount[]>(
     () => loadLS<UserAccount[]>("cc_users", [])
   );
-const [media, setMedia] = useState<MediaItem[]>([]);
+const [media, setMedia] = useState<MediaItem[]>(() => loadLS<MediaItem[]>("cc_media", []));
+useEffect(() => { saveLS("cc_media", media); }, [media]);
   const [reviews, setReviews] = useState<Review[]>(
     () => loadLS<Review[]>("cc_reviews", SEED_REVIEWS)
   );
@@ -1475,11 +1456,20 @@ const [media, setMedia] = useState<MediaItem[]>([]);
         );
 const filmes = await resposta.json();
 
-const filmesFormatados = filmes.map((filme: any) => ({
+if (!Array.isArray(filmes)) {
+  console.error("API não retornou uma lista:", filmes);
+  return;
+}
+console.log("Filmes recebidos da API:", filmes);
+
+const filmesFormatados = filmes.map((filme: any): MediaItem => ({
   id: filme.id,
+  // API doesn't supply explicit type for all items; default to movie if not provided
+  type: filme.tipo === "series" || filme.type === "series" ? "series" : "movie",
   title: filme.titulo || "",
   genre: filme.genero || "",
-  year: filme.ano || "",
+  // ensure year is a number
+  year: filme.ano ? Number(filme.ano) : (filme.ano === 0 ? 0 : 0),
   description: filme.descricao || "",
   director: filme.diretor || "",
   cast: filme.elenco ? filme.elenco.split(", ") : [],
@@ -1489,6 +1479,9 @@ const filmesFormatados = filmes.map((filme: any) => ({
 }));
 
 setMedia(filmesFormatados);
+
+
+ 
       } catch (erro) {
         console.error("Erro ao carregar filmes:", erro);
       }
@@ -1627,7 +1620,18 @@ setMedia(filmesFormatados);
                     headers: {
                       "Content-Type": "application/json",
                     },
-                    body: JSON.stringify(item),
+                    body: JSON.stringify({
+  id: item.id,
+  titulo: item.title,
+  genero: item.genre,
+  ano: item.year,
+  descricao: item.description,
+  diretor: item.director,
+  elenco: item.cast.join(", "),
+  duracao: item.duration,
+  corA: item.colorA,
+  corB: item.colorB,
+}),
                   }
                 );
 
@@ -1635,7 +1639,10 @@ setMedia(filmesFormatados);
                   throw new Error("Erro ao cadastrar filme");
                 }
 
-                setMedia((prev) => [...prev, item]);
+                const filmeSalvo = await resposta.json();
+
+                setMedia((prev) => [...prev.filter((m) => m.id !== item.id), item]);
+setMedia((prev) => prev);
               } catch (erro) {
                 console.error("Erro ao adicionar filme:", erro);
               }
