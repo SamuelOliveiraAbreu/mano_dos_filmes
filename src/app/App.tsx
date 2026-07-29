@@ -677,7 +677,7 @@ function CatalogPage({
   const filtered = media
     .filter((m) => m.type === type)
     .filter((m) => genre === "Todos" || m.genre === genre)
-    .filter((m) => m.title.toLowerCase().includes(search.toLowerCase()))
+    .filter((m) => (m.title || "").toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       if (sort === "title") return a.title.localeCompare(b.title);
       if (sort === "year") return b.year - a.year;
@@ -1109,7 +1109,7 @@ function AdminPage({
 
   const filtered = media
     .filter((m) => typeFilter === "all" || m.type === typeFilter)
-    .filter((m) => m.title.toLowerCase().includes(search.toLowerCase()));
+    .filter((m) => (m.title || "").toLowerCase().includes(search.toLowerCase()));
 
   function openEdit(item: MediaItem) {
     setForm({ type: item.type, title: item.title, genre: item.genre, year: item.year, description: item.description, director: item.director, cast: item.cast, duration: item.duration, colorA: item.colorA, colorB: item.colorB });
@@ -1479,15 +1479,15 @@ const filmes = await resposta.json();
 
 const filmesFormatados = filmes.map((filme: any) => ({
   id: filme.id,
-  title: filme.titulo,
-  genre: filme.genero,
-  year: filme.ano,
-  description: filme.descricao,
-  director: filme.diretor,
+  title: filme.titulo || "",
+  genre: filme.genero || "",
+  year: filme.ano || "",
+  description: filme.descricao || "",
+  director: filme.diretor || "",
   cast: filme.elenco ? filme.elenco.split(", ") : [],
-  duration: filme.duracao,
-  colorA: filme.corA,
-  colorB: filme.corB,
+  duration: filme.duracao || "",
+  colorA: filme.corA || "#b24592",
+  colorB: filme.corB || "#f15f79",
 }));
 
 setMedia(filmesFormatados);
