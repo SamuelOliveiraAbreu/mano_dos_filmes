@@ -1466,33 +1466,33 @@ const [media, setMedia] = useState<MediaItem[]>([]);
   );
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
   const [prevPage, setPrevPage] = useState<Page>("home");
-
     useEffect(() => {
-
     async function carregarFilmes() {
-
       try {
-
         const resposta = await fetch(
-
           "https://mano-dos-filmes-api.onrender.com/api/filmes"
-
         );
+const filmes = await resposta.json();
 
-        const filmes = await resposta.json();
+const filmesFormatados = filmes.map((filme: any) => ({
+  id: filme.id,
+  title: filme.titulo,
+  genre: filme.genero,
+  year: filme.ano,
+  description: filme.descricao,
+  director: filme.diretor,
+  cast: filme.elenco ? filme.elenco.split(", ") : [],
+  duration: filme.duracao,
+  colorA: filme.corA,
+  colorB: filme.corB,
+}));
 
-        setMedia(filmes);
-
+setMedia(filmesFormatados);
       } catch (erro) {
-
         console.error("Erro ao carregar filmes:", erro);
-
       }
-
     }
-
     carregarFilmes();
-
   }, []);
 
   // Sync to localStorage
@@ -1617,9 +1617,59 @@ const [media, setMedia] = useState<MediaItem[]>([]);
         {isAuthed && page === "admin" && (
           <AdminPage
             media={media}
-            onAdd={(item) => setMedia((prev) => [...prev, item])}
-            onEdit={(item) => setMedia((prev) => prev.map((m) => (m.id === item.id ? item : m)))}
-            onDelete={(id) => setMedia((prev) => prev.filter((m) => m.id !== id))}
+            onAdd={async (item: MediaItem) => {
+              try {
+                const resposta = await fetch(
+                  "https://mano-dos-filmes-api.onrender.com/api/filmes",
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(item),
+                  }
+                );
+
+                if (!resposta.ok) {
+                  throw new Error("Erro ao cadastrar filme");
+                }
+
+                setMedia((prev) => [...prev, item]);
+              } catch (erro) {
+                console.error("Erro ao adicionar filme:", erro);
+              }
+            }}
+            onEdit={async (item: MediaItem) => {
+              try {
+                await fetch(
+                  `https://mano-dos-filmes-api.onrender.com/api/filmes/${item.id}`,
+                  {
+                    method: "PUT",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(item),
+                  }
+                );
+
+                setMedia((prev) => prev.map((m) => (m.id === item.id ? item : m)));
+              } catch (erro) {
+                console.error("Erro ao editar filme:", erro);
+              }
+            }}
+            onDelete={async (id: string) => {
+              try {
+                await fetch(
+                  `https://mano-dos-filmes-api.onrender.com/api/filmes/${id}`,
+                  {
+                    method: "DELETE",
+                  }
+                );
+                setMedia((prev) => prev.filter((m) => m.id !== id));
+              } catch (erro) {
+                console.error("Erro ao excluir filme:", erro);
+              }
+            }}
           />
         )}
       </main>
