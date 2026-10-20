@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Star, Heart, Search, Plus, Pencil, Trash2, X, LogOut,
   Film, Tv, User, ChevronRight, Eye, EyeOff, ArrowLeft,
@@ -40,38 +40,47 @@ interface MediaItem {
 }
 
 // ─── Seed Data ─────────────────────────────────────────────────────────────────
+const SEED_USERS: UserAccount[] = [];
+
 const SEED_MEDIA: MediaItem[] = [
-  { id: "m1", type: "movie", title: "The Dark Knight", genre: "Ação", year: 2008, description: "Bruce Wayne enfrenta o Coringa, um criminoso que semeia o caos absoluto em Gotham City e desafia tudo que o herói representa.", director: "Christopher Nolan", cast: ["Christian Bale", "Heath Ledger", "Aaron Eckhart", "Gary Oldman"], duration: "152 min", colorA: "#1a1a2e", colorB: "#16213e" },
-  { id: "m2", type: "movie", title: "Vingadores: Ultimato", genre: "Ação", year: 2019, description: "Os heróis sobreviventes se unem em uma última e desesperada missão para reverter os danos causados por Thanos.", director: "Anthony e Joe Russo", cast: ["Robert Downey Jr.", "Chris Evans", "Scarlett Johansson", "Mark Ruffalo"], duration: "181 min", colorA: "#2d1b69", colorB: "#11998e" },
-  { id: "m3", type: "movie", title: "Mad Max: Estrada da Fúria", genre: "Ação", year: 2015, description: "Em um deserto pós-apocalíptico, Max ajuda a guerreira Furiosa a libertar mulheres escravizadas por um tirano.", director: "George Miller", cast: ["Tom Hardy", "Charlize Theron", "Nicholas Hoult"], duration: "120 min", colorA: "#b92b27", colorB: "#1565c0" },
-  { id: "m4", type: "movie", title: "Get Out", genre: "Terror", year: 2017, description: "Um jovem negro visita a família de sua namorada branca e começa a perceber algo profundamente perturbador.", director: "Jordan Peele", cast: ["Daniel Kaluuya", "Allison Williams", "Bradley Whitford"], duration: "104 min", colorA: "#0f0c29", colorB: "#302b63" },
-  { id: "m5", type: "movie", title: "Hereditário", genre: "Terror", year: 2018, description: "Após a morte da matriarca, a família Graham começa a desvendar segredos sombrios e uma herança macabra.", director: "Ari Aster", cast: ["Toni Collette", "Gabriel Byrne", "Milly Shapiro"], duration: "127 min", colorA: "#141414", colorB: "#3d0000" },
-  { id: "m6", type: "movie", title: "Interstellar", genre: "Ficção Científica", year: 2014, description: "Uma equipe de exploradores viaja por um buraco de minhoca em busca de um novo lar para a humanidade.", director: "Christopher Nolan", cast: ["Matthew McConaughey", "Anne Hathaway", "Jessica Chastain"], duration: "169 min", colorA: "#0a3d62", colorB: "#141e30" },
-  { id: "m7", type: "movie", title: "Inception", genre: "Ficção Científica", year: 2010, description: "Um ladrão especializado em roubar segredos de sonhos recebe a missão impossível de plantar uma ideia.", director: "Christopher Nolan", cast: ["Leonardo DiCaprio", "Joseph Gordon-Levitt", "Elliot Page"], duration: "148 min", colorA: "#12c2e9", colorB: "#1a1a2e" },
-  { id: "m8", type: "movie", title: "O Poderoso Chefão", genre: "Drama", year: 1972, description: "O patriarca de uma família da máfia italiana transfere o controle de seu império criminoso para o filho relutante.", director: "Francis Ford Coppola", cast: ["Marlon Brando", "Al Pacino", "James Caan"], duration: "175 min", colorA: "#2c1654", colorB: "#141414" },
-  { id: "m9", type: "movie", title: "Forrest Gump", genre: "Drama", year: 1994, description: "A extraordinária vida de um homem simples do Alabama que testemunha e participa de eventos históricos americanos.", director: "Robert Zemeckis", cast: ["Tom Hanks", "Robin Wright", "Gary Sinise"], duration: "142 min", colorA: "#005c97", colorB: "#363795" },
-  { id: "m10", type: "movie", title: "La La Land", genre: "Romance", year: 2016, description: "Um pianista de jazz e uma atriz aspirante se apaixonam enquanto perseguem seus sonhos em Los Angeles.", director: "Damien Chazelle", cast: ["Ryan Gosling", "Emma Stone", "J.K. Simmons"], duration: "128 min", colorA: "#9b59b6", colorB: "#3498db" },
-  { id: "m11", type: "movie", title: "Grand Budapest Hotel", genre: "Comédia", year: 2014, description: "As aventuras do concierge de um famoso hotel europeu e seu fiel lobby boy em meio a guerras e intrigas.", director: "Wes Anderson", cast: ["Ralph Fiennes", "Tony Revolori", "Saoirse Ronan"], duration: "99 min", colorA: "#c94b4b", colorB: "#4b134f" },
-  { id: "m12", type: "movie", title: "Parasita", genre: "Comédia", year: 2019, description: "Uma família pobre elabora um plano para se infiltrar na vida de uma rica família sul-coreana.", director: "Bong Joon-ho", cast: ["Song Kang-ho", "Lee Sun-kyun", "Cho Yeo-jeong"], duration: "132 min", colorA: "#1d976c", colorB: "#0a3d62" },
-  { id: "s1", type: "series", title: "Breaking Bad", genre: "Drama", year: 2008, description: "Um professor de química se transforma em um implacável fabricante de drogas após um diagnóstico terminal.", director: "Vince Gilligan", cast: ["Bryan Cranston", "Aaron Paul", "Anna Gunn"], duration: "5 temporadas", colorA: "#4b6cb7", colorB: "#182848" },
-  { id: "s2", type: "series", title: "Stranger Things", genre: "Terror", year: 2016, description: "Um grupo de crianças enfrenta forças sobrenaturais vindas do Mundo Invertido em uma pequena cidade americana.", director: "Matt e Ross Duffer", cast: ["Millie Bobby Brown", "Finn Wolfhard", "David Harbour"], duration: "4 temporadas", colorA: "#0f0c29", colorB: "#302b63" },
-  { id: "s3", type: "series", title: "Game of Thrones", genre: "Ação", year: 2011, description: "Famílias nobres travam guerras brutais pelo controle do Trono de Ferro e dos Sete Reinos de Westeros.", director: "D.B. Weiss e D. Benioff", cast: ["Emilia Clarke", "Kit Harington", "Peter Dinklage"], duration: "8 temporadas", colorA: "#141e30", colorB: "#243b55" },
-  { id: "s4", type: "series", title: "The Boys", genre: "Ação", year: 2019, description: "Um grupo de vigilantes sem poderes tenta derrubar super-heróis corporativos corruptos e violentos.", director: "Eric Kripke", cast: ["Karl Urban", "Jack Quaid", "Antony Starr"], duration: "4 temporadas", colorA: "#780206", colorB: "#061161" },
-  { id: "s5", type: "series", title: "Dark", genre: "Ficção Científica", year: 2017, description: "Quatro famílias interligadas numa cidade alemã descobrem uma conspiração de viagem no tempo que atravessa gerações.", director: "Baran bo Odar", cast: ["Louis Hofmann", "Lisa Vicari", "Maja Schöne"], duration: "3 temporadas", colorA: "#0f0c29", colorB: "#0a3d62" },
-  { id: "s6", type: "series", title: "Succession", genre: "Drama", year: 2018, description: "Os filhos de um magnata da mídia combatem-se pelo controle de uma dinastia global de comunicações.", director: "Jesse Armstrong", cast: ["Brian Cox", "Jeremy Strong", "Sarah Snook"], duration: "4 temporadas", colorA: "#1a1a1a", colorB: "#3d3d3d" },
-  { id: "s7", type: "series", title: "Black Mirror", genre: "Ficção Científica", year: 2011, description: "Antologia perturbadora que explora as consequências sombrias da tecnologia moderna na sociedade.", director: "Charlie Brooker", cast: ["Toby Kebbell", "Bryce Dallas Howard", "Jon Hamm"], duration: "6 temporadas", colorA: "#000000", colorB: "#434343" },
-  { id: "s8", type: "series", title: "Peaky Blinders", genre: "Drama", year: 2013, description: "A família Shelby, uma gangue de Birmingham no pós-guerra, ascende ao poder criminal e político.", director: "Steven Knight", cast: ["Cillian Murphy", "Helen McCrory", "Tom Hardy"], duration: "6 temporadas", colorA: "#2c1654", colorB: "#4a1942" },
-  { id: "s9", type: "series", title: "Squid Game", genre: "Ação", year: 2021, description: "Centenas de pessoas endividadas participam de jogos infantis mortais por um prêmio milionário.", director: "Hwang Dong-hyuk", cast: ["Lee Jung-jae", "Park Hae-soo", "Wi Ha-jun"], duration: "2 temporadas", colorA: "#11998e", colorB: "#38ef7d" },
-  { id: "s10", type: "series", title: "Ozark", genre: "Drama", year: 2017, description: "Um contador é forçado a lavar dinheiro para um cartel mexicano e muda sua família para o interior.", director: "Bill Dubuque", cast: ["Jason Bateman", "Laura Linney", "Julia Garner"], duration: "4 temporadas", colorA: "#003366", colorB: "#1a1a2e" },
-  { id: "s11", type: "series", title: "Fleabag", genre: "Comédia", year: 2016, description: "Uma mulher irreverente e autodestrutiva navega pela vida moderna em Londres com humor corrosivo.", director: "Phoebe Waller-Bridge", cast: ["Phoebe Waller-Bridge", "Sian Clifford", "Olivia Colman"], duration: "2 temporadas", colorA: "#b24592", colorB: "#f15f79" },
-  { id: "s12", type: "series", title: "Narcos", genre: "Ação", year: 2015, description: "A saga real da ascensão e queda de Pablo Escobar e do cartel de Medellín contada por agentes da DEA.", director: "Chris Brancato", cast: ["Wagner Moura", "Boyd Holbrook", "Pedro Pascal"], duration: "3 temporadas", colorA: "#134e5e", colorB: "#71b280" },
+  {
+    id: "seed-1",
+    type: "movie",
+    title: "O Padrinho",
+    genre: "Drama",
+    year: 1972,
+    description: "A saga de uma família mafiosa em Nova York.",
+    director: "Francis Ford Coppola",
+    cast: ["Marlon Brando", "Al Pacino", "James Caan"],
+    duration: "175 min",
+    colorA: "#1a1a2e",
+    colorB: "#16213e",
+  },
+  {
+    id: "seed-2",
+    type: "series",
+    title: "Breaking Bad",
+    genre: "Drama",
+    year: 2008,
+    description: "Um professor de química se transforma em produtor de metanfetamina.",
+    director: "Vince Gilligan",
+    cast: ["Bryan Cranston", "Aaron Paul", "Anna Gunn"],
+    duration: "5 temporadas",
+    colorA: "#2d6a4f",
+    colorB: "#1b4332",
+  },
 ];
 
 const SEED_REVIEWS: Review[] = [
-  { id: "r1", userId: "demo", userName: "João Silva", mediaId: "m1", rating: 5, text: "Obra-prima absoluta do cinema. Heath Ledger é simplesmente incomparável como Coringa. Um dos melhores filmes já feitos.", date: "2024-03-15" },
-  { id: "r2", userId: "demo2", userName: "Ana Costa", mediaId: "m1", rating: 4, text: "Impressionante em todos os aspectos. A performance de Ledger eleva o filme a outro nível.", date: "2024-04-02" },
-  { id: "r3", userId: "demo", userName: "João Silva", mediaId: "m6", rating: 5, text: "Visualmente deslumbrante e emocionalmente devastador. Nolan no seu melhor.", date: "2024-02-20" },
-  { id: "r4", userId: "demo2", userName: "Ana Costa", mediaId: "s1", rating: 5, text: "A melhor série da história da televisão. Sem discussão possível.", date: "2024-05-10" },
+  {
+    id: "seed-review-1",
+    userId: "seed-user-1",
+    userName: "Visitante",
+    mediaId: "seed-1",
+    rating: 5,
+    text: "Clássico obrigatório e muito bem construído.",
+    date: "2026-10-20",
+  },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -1118,11 +1127,16 @@ function AdminPage({
     setShowForm(true);
   }
 
-  async function handleSave(e: any) {
+  function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!form.title.trim() || !form.description.trim()) return;
-    const castArray = castInput.split(",").map((s) => s.trim()).filter(Boolean);
-     const itemData = { ...form, cast: castArray };
+
+    const castArray = castInput
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const itemData = { ...form, cast: castArray };
 
     if (editId) {
       onEdit({ ...itemData, id: editId });
@@ -1430,16 +1444,16 @@ function AdminPage({
 
 // ─── Root App ──────────────────────────────────────────────────────────────────
 export default function App() {
-
   const [page, setPage] = useState<Page>("landing");
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(
     () => loadLS<UserAccount | null>("cc_user", null)
   );
   const [users, setUsers] = useState<UserAccount[]>(
-    () => loadLS<UserAccount[]>("cc_users", [])
+    () => loadLS<UserAccount[]>("cc_users", SEED_USERS)
   );
-const [media, setMedia] = useState<MediaItem[]>(() => loadLS<MediaItem[]>("cc_media", []));
-useEffect(() => { saveLS("cc_media", media); }, [media]);
+  const [media, setMedia] = useState<MediaItem[]>(
+    () => loadLS<MediaItem[]>("cc_media", SEED_MEDIA)
+  );
   const [reviews, setReviews] = useState<Review[]>(
     () => loadLS<Review[]>("cc_reviews", SEED_REVIEWS)
   );
@@ -1448,44 +1462,50 @@ useEffect(() => { saveLS("cc_media", media); }, [media]);
   );
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
   const [prevPage, setPrevPage] = useState<Page>("home");
-    useEffect(() => {
+
+  useEffect(() => {
+    saveLS("cc_media", media);
+  }, [media]);
+
+  useEffect(() => {
     async function carregarFilmes() {
       try {
-        const resposta = await fetch(
-          "https://mano-dos-filmes-api.onrender.com/api/filmes"
-        );
-const filmes = await resposta.json();
+        const resposta = await fetch("https://mano-dos-filmes-api.onrender.com/api/filmes");
+        if (!resposta.ok) {
+          throw new Error(`HTTP ${resposta.status}`);
+        }
 
-if (!Array.isArray(filmes)) {
-  console.error("API não retornou uma lista:", filmes);
-  return;
-}
-console.log("Filmes recebidos da API:", filmes);
+        const filmes = await resposta.json();
 
-const filmesFormatados = filmes.map((filme: any): MediaItem => ({
-  id: filme.id,
-  // API doesn't supply explicit type for all items; default to movie if not provided
-  type: filme.tipo === "series" || filme.type === "series" ? "series" : "movie",
-  title: filme.titulo || "",
-  genre: filme.genero || "",
-  // ensure year is a number
-  year: filme.ano ? Number(filme.ano) : (filme.ano === 0 ? 0 : 0),
-  description: filme.descricao || "",
-  director: filme.diretor || "",
-  cast: filme.elenco ? filme.elenco.split(", ") : [],
-  duration: filme.duracao || "",
-  colorA: filme.corA || "#b24592",
-  colorB: filme.corB || "#f15f79",
-}));
+        if (!Array.isArray(filmes)) {
+          console.error("API não retornou uma lista:", filmes);
+          return;
+        }
 
-setMedia(filmesFormatados);
+        const filmesFormatados: MediaItem[] = filmes.map((filme: Record<string, unknown>): MediaItem => ({
+          id: String(filme.id ?? genId()),
+          type: filme.tipo === "series" || filme.type === "series" ? "series" : "movie",
+          title: String(filme.titulo ?? ""),
+          genre: String(filme.genero ?? "Drama"),
+          year: Number(filme.ano ?? 2024),
+          description: String(filme.descricao ?? ""),
+          director: String(filme.diretor ?? ""),
+          cast: Array.isArray(filme.elenco)
+            ? filme.elenco.map((item) => String(item))
+            : String(filme.elenco ?? "").split(",").map((part) => part.trim()).filter(Boolean),
+          duration: String(filme.duracao ?? ""),
+          colorA: String(filme.corA ?? "#b24592"),
+          colorB: String(filme.corB ?? "#f15f79"),
+        }));
 
-
- 
+        if (filmesFormatados.length > 0) {
+          setMedia(filmesFormatados);
+        }
       } catch (erro) {
         console.error("Erro ao carregar filmes:", erro);
       }
     }
+
     carregarFilmes();
   }, []);
 
@@ -1584,12 +1604,12 @@ setMedia(filmesFormatados);
           />
         )}
 
-        {isAuthed && page === "detail" && selectedItem && (
+        {isAuthed && page === "detail" && selectedItem && currentUser && (
           <DetailPage
             item={selectedItem}
             reviews={reviews}
             favorites={favorites}
-            currentUser={currentUser!}
+            currentUser={currentUser}
             onToggleFav={toggleFav}
             onAddReview={(r) => setReviews((prev) => [...prev, r])}
             onEditReview={(r) => setReviews((prev) => prev.map((x) => (x.id === r.id ? r : x)))}
@@ -1621,17 +1641,17 @@ setMedia(filmesFormatados);
                       "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-  id: item.id,
-  titulo: item.title,
-  genero: item.genre,
-  ano: item.year,
-  descricao: item.description,
-  diretor: item.director,
-  elenco: item.cast.join(", "),
-  duracao: item.duration,
-  corA: item.colorA,
-  corB: item.colorB,
-}),
+                      id: item.id,
+                      titulo: item.title,
+                      genero: item.genre,
+                      ano: item.year,
+                      descricao: item.description,
+                      diretor: item.director,
+                      elenco: item.cast.join(", "),
+                      duracao: item.duration,
+                      corA: item.colorA,
+                      corB: item.colorB,
+                    }),
                   }
                 );
 
@@ -1639,10 +1659,10 @@ setMedia(filmesFormatados);
                   throw new Error("Erro ao cadastrar filme");
                 }
 
-                const filmeSalvo = await resposta.json();
-
-                setMedia((prev) => [...prev.filter((m) => m.id !== item.id), item]);
-setMedia((prev) => prev);
+                setMedia((prev) => {
+                  const filtered = prev.filter((m) => m.id !== item.id);
+                  return [...filtered, item];
+                });
               } catch (erro) {
                 console.error("Erro ao adicionar filme:", erro);
               }
