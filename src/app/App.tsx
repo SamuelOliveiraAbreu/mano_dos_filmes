@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Star, Heart, Search, Plus, Pencil, Trash2, X, LogOut,
   Film, Tv, User, ChevronRight, Eye, EyeOff, ArrowLeft,
